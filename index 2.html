@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Funnel Page Intake Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Barlow', sans-serif;
+  background: #000;
+  color: #fff;
+  min-height: 100vh;
+  line-height: 1.6;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(33,153,184,0.03) 0%, transparent 50%),
+    #000;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* PROGRESS BAR */
+.progress-bar-wrap {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  z-index: 999;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2199b8, #2db8d8);
+  transition: width 0.4s ease;
+  box-shadow: 0 0 10px rgba(59,130,246,0.6);
+}
+
+/* NAV */
+.top-nav {
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.brand {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.brand span { color: #2db8d8; }
+.step-counter {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #555;
+}
+.step-counter em { color: #2db8d8; font-style: normal; }
+
+/* MAIN LAYOUT */
+.outer {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 60px 24px 120px;
+  position: relative;
+  z-index: 1;
+}
+
+/* STEP */
+.step { display: none; }
+.step.active { display: block; animation: fadeIn 0.35s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+.step-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #2db8d8;
+  margin-bottom: 20px;
+}
+.step-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  color: #fff;
+  margin-bottom: 12px;
+}
+.step-desc {
+  font-size: 16px;
+  font-weight: 300;
+  color: #888;
+  margin-bottom: 40px;
+  max-width: 540px;
+}
+.step-rule {
+  width: 40px;
+  height: 2px;
+  background: #2db8d8;
+  margin-bottom: 32px;
+}
+
+/* FIELDS */
+.field-group { margin-bottom: 24px; }
+.field-group label {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+.field-group label span {
+  color: #2db8d8;
+  margin-left: 4px;
+}
+.field-group .hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: #555;
+  letter-spacing: 0;
+  text-transform: none;
+  display: block;
+  margin-top: 3px;
+}
+
+input[type="text"],
+input[type="url"],
+input[type="color"],
+textarea,
+select {
+  width: 100%;
+  padding: 14px 18px;
+  background: #121212;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'Barlow', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  -webkit-appearance: none;
+}
+input[type="color"] {
+  padding: 6px;
+  height: 48px;
+  cursor: pointer;
+}
+input:focus, textarea:focus, select:focus {
+  background: #1a1a1a;
+  border-color: rgba(33,153,184,0.4);
+  box-shadow: 0 0 0 3px rgba(33,153,184,0.08);
+}
+textarea { resize: vertical; min-height: 90px; }
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
+
+.color-row {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+/* SECTION LABEL */
+.section-sep {
+  margin: 36px 0 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #2db8d8;
+}
+
+/* BUTTONS */
+.btn-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 48px;
+}
+.btn-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 40px;
+  background: #2199b8;
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(37,99,235,0.4);
+  transition: all 0.2s;
+}
+.btn-next:hover { background: #2db8d8; transform: translateY(-2px); box-shadow: 0 6px 40px rgba(59,130,246,0.5); }
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 28px;
+  background: transparent;
+  color: #555;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-back:hover { color: #fff; border-color: rgba(255,255,255,0.2); }
+
+/* REVIEW SCREEN */
+.review-block {
+  background: #0d0d0d;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin-bottom: 16px;
+}
+.review-block-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #2db8d8;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.review-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.review-row:last-child { margin-bottom: 0; }
+.review-key {
+  min-width: 180px;
+  font-weight: 600;
+  color: #666;
+  font-size: 13px;
+}
+.review-val { color: #ddd; word-break: break-word; }
+
+/* SUCCESS */
+.success-screen { display: none; text-align: center; padding: 60px 0; }
+.success-screen.active { display: block; animation: fadeIn 0.4s ease; }
+.success-icon {
+  width: 72px; height: 72px;
+  background: rgba(37,99,235,0.12);
+  border: 2px solid rgba(59,130,246,0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 32px;
+  color: #2db8d8;
+}
+.success-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px;
+  color: #fff;
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+}
+.success-body {
+  font-size: 17px;
+  font-weight: 300;
+  color: #888;
+  max-width: 480px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+.success-body strong { color: #fff; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressBar" style="width: 12.5%"></div>
+</div>
+
+<nav class="top-nav">
+  <div class="brand">Funnel <span>Generator</span></div>
+  <div class="step-counter">Step <em id="stepNum">1</em> of <em>9</em></div>
+</nav>
+
+<div class="outer">
+
+  <!-- ===== STEP 1: BUSINESS INFO ===== -->
+  <div class="step active" id="step1">
+    <p class="step-eyebrow">Step 1 of 8 — Let's Get Started</p>
+    <h2 class="step-title">Your Business</h2>
+    <div class="step-rule"></div>
+    <p class="step-desc">Tell us about your brand so we can make the page feel like you.</p>
+
+    <div class="field-group">
+      <label>Business / Brand Name <span>*</span></label>
+      <input type="text" id="businessName" placeholder="e.g. The Aesthetic Blueprint"/>
+    </div>
+    <div class="field-group">
+      <label>Tagline or Subtitle <span class="hint">Optional — shown under your logo</span></label>
+      <input type="text" id="tagline" placeholder="e.g. Elite Physique System"/>
+    </div>
+    <div class="field-group">
+      <label>Background Theme <span>*</span><span class="hint">Dark works great for fitness/coaching, light for wellness/lifestyle</span></label>
+      <select id="bgTheme">
+        <option value="dark" selected>Dark Background (recommended)</option>
+        <option value="light">Light Background</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>Brand / Accent Color <span class="hint">Your main color — used for buttons & highlights (hex code)</span></label>
+      <div class="color-row">
+        <input type="color" id="brandColorPicker" value="#2199b8" />
+        <input type="text" id="brandColorHex" placeholder="#2199b8" value="#2199b8" maxlength="7" />
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Logo URL <span class="hint">Optional — paste a direct link to your logo image</span></label>
+      <input type="url" id="logoUrl" placeholder="https://..."/>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-next" data-next="2">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 2: THE OFFER ===== -->
+  <div class="step" id="step2">
+    <p class="step-eyebrow">Step 2 of 8 — Your Offer</p>
+    <h2 class="step-title">The Offer</h2>
+    <div class="step-rule"></div>
+    <p class="step-desc">What are you selling and who is it for?</p>
+
+    <div class="field-group">
+      <label>Offer Name <span>*</span></label>
+      <input type="text" id="offerName" placeholder="e.g. The 12-Week Shred Program"/>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Program Length <span>*</span></label>
+        <input type="text" id="programLength" placeholder="e.g. 12 weeks"/>
+      </div>
+      <div class="field-group">
+        <label>Who Is This For? <span>*</span></label>
+        <input type="text" id="targetAudience" placeholder="e.g. Busy men 30-45"/>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Main Result / Promise <span>*</span><span class="hint">The #1 outcome your client gets</span></label>
+      <input type="text" id="mainResult" placeholder="e.g. Lose 20lbs and build lean muscle in 12 weeks"/>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" data-back="1">← Back</button>
+      <button class="btn-next" data-next="3">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 3: HERO SECTION ===== -->
+  <div class="step" id="step3">
+    <p class="step-eyebrow">Step 3 of 8 — Hero Section</p>
+    <h2 class="step-title">The Headline</h2>
+    <div class="step-rule"></div>
+    <p class="step-desc">This is the first thing visitors see. Make it bold, punchy, and specific.</p>
+
+    <p class="section-sep">Headline — 3 Short Power Lines</p>
+    <div class="field-group">
+      <label>Line 1 <span>*</span><span class="hint">e.g. "DROP FAT."</span></label>
+      <input type="text" id="headline1" placeholder="DROP FAT."/>
+    </div>
+    <div class="field-group">
+      <label>Line 2 <span>*</span><span class="hint">e.g. "BUILD LEAN MUSCLE."</span></label>
+      <input type="text" id="headline2" placeholder="BUILD LEAN MUSCLE."/>
+    </div>
+    <div class="field-group">
+      <label>Line 3 <span>*</span><span class="hint">e.g. "STAY PHOTO-READY."</span></label>
+      <input type="text" id="headline3" placeholder="STAY PHOTO-READY."/>
+    </div>
+
+    <p class="section-sep">Subtext & CTA</p>
+    <div class="field-group">
+      <label>Hero Body Copy <span>*</span><span class="hint">2-3 sentences that agitate the problem and introduce the solution</span></label>
+      <textarea id="heroSubtext" placeholder="Discipline isn't your problem — execution is. [Name]'s [X]-week [Offer Name] is the same system they use to stay lean, muscular, and photo-ready year round. No sacrifice. No guesswork. Just results."></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>CTA Button Text <span>*</span></label>
+        <input type="text" id="ctaText" placeholder="Apply Now — Limited Spots"/>
+      </div>
+      <div class="field-group">
+        <label>CTA Button URL <span>*</span></label>
+        <input type="url" id="ctaUrl" placeholder="https://..."/>
+      </div>
+    </div>
+
+    <p class="section-sep">Stats Bar — 3 Numbers</p>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Stat 1 Number</label>
+        <input type="text" id="stat1num" placeholder="16"/>
+      </div>
+      <div class="field-group">
+        <label>Stat 1 Label</label>
+        <input type="text" id="stat1lbl" placeholder="Weeks"/>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Stat 2 Number</label>
+        <input type="text" id="stat2num" placeholder="1:1"/>
+      </div>
+      <div class="field-group">
+        <label>Stat 2 Label</label>
+        <input type="text" id="stat2lbl" placeholder="Direct Coaching"/>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Stat 3 Number</label>
+        <input type="text" id="stat3num" placeholder="200+"/>
+      </div>
+      <div class="field-group">
+        <label>Stat 3 Label</label>
+        <input type="text" id="stat3lbl" placeholder="Clients Transformed"/>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" data-next="2">← Back</button>
+      <button class="btn-next" data-next="4">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 4: VIDEO ===== -->
+  <div class="step" id="step4">
+    <p class="step-eyebrow">Step 4 of 8 — Video</p>
+    <h2 class="step-title">Your VSL</h2>
+    <div class="step-rule"></div>
+    <p class="step-desc">The video sales letter that does the heavy lifting. Leave blank if you don't have one yet.</p>
+
+    <div class="field-group">
+      <label>Video Embed URL <span class="hint">Vimeo or YouTube embed URL — e.g. https://player.vimeo.com/video/12345</span></label>
+      <input type="url" id="videoUrl" placeholder="https://player.vimeo.com/video/..."/>
+    </div>
+    <div class="field-group">
+      <label>Video Banner Text <span>*</span><span class="hint">The blue bar above the video</span></label>
+      <input type="text" id="videoBanner" placeholder="Watch this before you apply — it will change how you train forever"/>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" data-next="3">← Back</button>
+      <button class="btn-next" data-next="5">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 5: BENEFITS ===== -->
+  <div class="step" id="step5">
+    <p class="step-eyebrow">Step 5 of 8 — Benefits</p>
+    <h2 class="step-title">The Transformation</h2>
+    <div class="step-rule"></div>
+    <p class="step-desc">3 core outcomes your client gets. Short, punchy, and specific.</p>
+
+    <div class="field-group">
+      <label>Section Headline <span>*</span></label>
+      <input type="text" id="benefitsHeadline" placeholder="The Transformation"/>
+    </div>
+
+    <p class="section-sep">Benefit 1</p>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Title <span>*</span></label>
+        <input type="text" id="b1title" placeholder="Elite Physique"/>
+      </div>
+      <div class="field-group">
+        <label>Description <span>*</span></label>
+        <input type="text" id="b1desc" placeholder="Not just lean — defined. Visible abs. A physique that turns heads."/>
+      </div>
+    </div>
+
+    <p class="section-sep">Benefit 2</p>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Title <span>*</span></label>
+        <input type="text" id="b2title" placeholder="Train Smarter"/>
+      </div>
+      <div class="field-group">
+        <label>Description <span>*</span></label>
+        <input type="text" id="b2desc" placeholder="Fewer workouts. Better results. Stop wasting time."/>
+      </div>
+    </div>
+
+    <p class="section-sep">Benefit 3</p>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Title <span>*</span></label>
+        <input type="text" id="b3title" placeholder="Take Control"/>
+      </div>
+      <div class="field-group">
+        <label>Description <span>*</span></label>
+        <input type="text" id="b3desc" placeholder="A system you can trust. No guesswork, just results."/>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" data-next="4">← Back</button>
+      <button class="btn-next" data-next="6">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 6: WHAT'S INCLUDED ===== -->
+  <div class="step" id="step6">
+    <p class="step-eyebrow">Step 6 of 8 — What's Included</p>
+    <h2 class="step-title">What They Get</h2>
+    <div class="step-rule"></div>
+    <p class="step-desc">6 deliverables inside your offer. Title, short description, and a label tag for each.</p>
+
+    <p class="section-sep">Items 1 & 2</p>
+    <div class="field-row">
+      <div class="field-group"><label>Item 1 Title</label><input type="text" id="i1title" placeholder="Custom Training Plan"/></div>
+      <div class="field-group"><label>Item 1 Tag</label><input type="text" id="i1tag" placeholder="Personalized"/></div>
+    </div>
+    <div class="field-group"><label>Item 1 Description</label><textarea id="i1desc" placeholder="Get feedback, support, and real-time adjustments via app and direct contact."></textarea></div>
+
+    <div class="field-row">
+      <div class="field-group"><label>Item 2 Title</label><input type="text" id="i2title" placeholder="Custom Nutrition System"/></div>
+      <div class="field-group"><label>Item 2 Tag</label><input type="text" id="i2tag" placeholder="Bi-Weekly Updates"/></div>
+    </div>
+    <div class="field-group"><label>Item 2 Description</label><textarea id="i2desc" placeholder="Macro-aligned meals and strategic tweaks every two weeks."></textarea></div>
+
+    <p class="section-sep">Items 3 & 4</p>
+    <div class="field-row">
+      <div class="field-group"><label>Item 3 Title</label><input type="text" id="i3title" placeholder="1:1 Coaching"/></div>
+      <div class="field-group"><label>Item 3 Tag</label><input type="text" id="i3tag" placeholder="Direct Access"/></div>
+    </div>
+    <div class="field-group"><label>Item 3 Description</label><textarea id="i3desc" placeholder="Expert coaching directly from [name], keeping you accountable."></textarea></div>
+
+    <div class="field-row">
+      <div class="field-group"><label>Item 4 Title</label><input type="text" id="i4title" placeholder="On-Demand Support"/></div>
+      <div class="field-group"><label>Item 4 Tag</label><input type="text" id="i4tag" placeholder="Always On"/></div>
+    </div>
+    <div class="field-group"><label>Item 4 Description</label><textarea id="i4desc" placeholder="Access coaches via app, text, and email for real-time adjustments."></textarea></div>
+
+    <p class="section-sep">Items 5 & 6</p>
+    <div class="field-row">
+      <div class="field-group"><label>Item 5 Title</label><input type="text" id="i5title" placeholder="Plan Optimization"/></div>
+      <div class="field-group"><label>Item 5 Tag</label><input type="text" id="i5tag" placeholder="Every 2 Weeks"/></div>
+    </div>
+    <div class="field-group"><label>Item 5 Description</label><textarea id="i5desc" placeholder="Your plan evolves with you, assessed every two weeks."></textarea></div>
+
+    <div class="field-row">
+      <div class="field-group"><label>Item 6 Title</label><input type="text" id="i6title" placeholder="Supplement Protocol"/></div>
+      <div class="field-group"><label>Item 6 Tag</label><input type="text" id="i6tag" placeholder="No Fluff"/></div>
+    </div>
+    <div class="field-group"><label>Item 6 Description</label><textarea id="i6desc" placeholder="Exact supplement stack — what to take, when, and what to skip."></textarea></div>
+
+    <div class="btn-row">
+      <button class="btn-back" data-next="5">← Back</button>
+      <button class="btn-next" data-next="7">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 7: SOCIAL PROOF ===== -->
+  <div class="step" id="step7">
+    <p class="step-eyebrow">Step 7 of 9 — Social Proof</p>
+    <h2 class="step-title">Results & Testimonials</h2>
+    <div class="step-rule"></div>
+    <p class="step-desc">Show prospects real results. Choose text testimonials, before & after photos, or both.</p>
+
+    <div class="field-group">
+      <label>Social Proof Type <span>*</span></label>
+      <select id="proofType" data-onchange="toggleProof">
+        <option value="text">Text Testimonials only</option>
+        <option value="photos">Before & After Photos only</option>
+        <option value="both">Both — Testimonials + Before & Afters</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label>Section Headline <span>*</span></label>
+      <input type="text" id="proofHeadline" placeholder="What Our Clients Say"/>
+    </div>
+    <div class="field-group">
+      <label>Section Subtext</label>
+      <input type="text" id="proofSubtext" placeholder="These aren't outliers. This is what happens when you follow the system."/>
+    </div>
+
+    <!-- TEXT TESTIMONIALS -->
+    <div id="textProofFields">
+      <p class="section-sep">How many testimonials?</p>
+      <div class="field-group">
+        <label>Number of Testimonials</label>
+        <select id="numTestimonials" data-onchange="testimonials">
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+      <div id="testimonialFields"></div>
+    </div>
+
+    <!-- BEFORE & AFTER PHOTOS -->
+    <div id="photoProofFields" style="display:none;">
+      <p class="section-sep">How many before & afters?</p>
+      <div class="field-group">
+        <label>Number of Before & Afters</label>
+        <select id="numBAs" data-onchange="bas">
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
+      <div id="baFields"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" data-next="6">← Back</button>
+      <button class="btn-next" data-next="8">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 8: HOW IT WORKS (was step 7) ===== -->
+  <div class="step" id="step8">
+    <p class="step-eyebrow">Step 8 of 9 — Process</p>
+    <h2 class="step-title">How It Works</h2>
+    <div class="step-rule"></div>
+    <p class="step-desc">The 3 steps a prospect takes to get started. Keep it simple.</p>
+
+    <div class="field-group">
+      <label>Urgency Bar Text <span>*</span></label>
+      <input type="text" id="urgencyText" placeholder="⚡ Spots Are Limited — Only Serious Applicants Accepted"/>
+    </div>
+
+    <p class="section-sep">Step 1</p>
+    <div class="field-row">
+      <div class="field-group"><label>Title</label><input type="text" id="s1title" placeholder="Apply Now"/></div>
+      <div class="field-group"><label>Description</label><input type="text" id="s1desc" placeholder="Fill out a short application so we can learn about your goals."/></div>
+    </div>
+
+    <p class="section-sep">Step 2</p>
+    <div class="field-row">
+      <div class="field-group"><label>Title</label><input type="text" id="s2title" placeholder="Book Your Call"/></div>
+      <div class="field-group"><label>Description</label><input type="text" id="s2desc" placeholder="Schedule your 1:1 strategy call to map out your custom plan."/></div>
+    </div>
+
+    <p class="section-sep">Step 3</p>
+    <div class="field-row">
+      <div class="field-group"><label>Title</label><input type="text" id="s3title" placeholder="Start Transforming"/></div>
+      <div class="field-group"><label>Description</label><input type="text" id="s3desc" placeholder="Receive your personalized plan and begin transforming."/></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" data-next="7">← Back</button>
+      <button class="btn-next" data-next="9">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 9: REVIEW (was step 8) ===== -->
+  <div class="step" id="step9">
+    <p class="step-eyebrow">Step 9 of 9 — Review</p>
+    <h2 class="step-title">Review & Submit</h2>
+    <div class="step-rule"></div>
+    <p class="step-desc">Double-check everything below, then hit submit. We'll build your custom funnel page and send it back to you.</p>
+
+    <div id="reviewContent"></div>
+
+    <div class="btn-row">
+      <button class="btn-back" data-next="8">← Back</button>
+      <button class="btn-next" data-submit="true" style="background:#16a34a; box-shadow: 0 0 30px rgba(22,163,74,0.4);">
+        ✓ Submit My Intake
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== SUCCESS ===== -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <path d="M6 16l7 7 13-13" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h2 class="success-title">You're All Set!</h2>
+    <p class="success-body">Your intake form has been submitted. <strong>We'll have your custom funnel page ready within 24 hours.</strong> We'll be in touch soon — keep an eye on your inbox.</p>
+  </div>
+
+</div>
+
+<script>
+let currentStep = 1;
+const totalSteps = 9;
+
+function goTo(n) {
+  document.getElementById('step' + currentStep).classList.remove('active');
+  currentStep = n;
+  document.getElementById('step' + n).classList.add('active');
+  document.getElementById('stepNum').textContent = n;
+  document.getElementById('progressBar').style.width = ((n / totalSteps) * 100) + '%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 9) buildReview();
+}
+
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? (el.value.trim() || '—') : '—';
+}
+
+// ---- SOCIAL PROOF DYNAMIC FIELDS ----
+function toggleProofFields() {
+  const type = document.getElementById('proofType').value;
+  document.getElementById('textProofFields').style.display = (type === 'photos') ? 'none' : 'block';
+  document.getElementById('photoProofFields').style.display = (type === 'text') ? 'none' : 'block';
+  if (type !== 'photos') buildTestimonialFields();
+  if (type !== 'text') buildBAFields();
+}
+
+function buildTestimonialFields() {
+  const n = parseInt(document.getElementById('numTestimonials').value);
+  let html = '';
+  for (let i = 1; i <= n; i++) {
+    html += `
+      <p class="section-sep">Testimonial ${i}</p>
+      <div class="field-row">
+        <div class="field-group"><label>Name</label><input type="text" id="tname${i}" placeholder="e.g. Marcus T."/></div>
+        <div class="field-group"><label>Result Tag</label><input type="text" id="tresult${i}" placeholder="e.g. −18 lbs in 10 weeks"/></div>
+      </div>
+      <div class="field-group"><label>Quote</label><textarea id="tquote${i}" placeholder="What did they say about the program?"></textarea></div>
+    `;
+  }
+  document.getElementById('testimonialFields').innerHTML = html;
+}
+
+function buildBAFields() {
+  const n = parseInt(document.getElementById('numBAs').value);
+  let html = '';
+  for (let i = 1; i <= n; i++) {
+    html += `
+      <p class="section-sep">Before & After ${i}</p>
+      <div class="field-row">
+        <div class="field-group"><label>Client Name</label><input type="text" id="baname${i}" placeholder="e.g. Derek R."/></div>
+        <div class="field-group"><label>Result Label</label><input type="text" id="baresult${i}" placeholder="e.g. −22 lbs · Leaner at 38"/></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Before Photo URL</label><input type="url" id="babefore${i}" placeholder="https://..."/></div>
+        <div class="field-group"><label>After Photo URL</label><input type="url" id="baafter${i}" placeholder="https://..."/></div>
+      </div>
+    `;
+  }
+  document.getElementById('baFields').innerHTML = html;
+}
+
+// Init proof fields on load
+window.addEventListener('DOMContentLoaded', () => {
+  buildTestimonialFields();
+  attachButtonListeners();
+});
+
+// Attach all button click listeners (GHL-safe approach)
+function attachButtonListeners() {
+  // Get all buttons and attach listeners
+  document.querySelectorAll('.btn-next').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const step = this.getAttribute('data-next');
+      if (step) goTo(parseInt(step));
+    });
+  });
+  
+  document.querySelectorAll('.btn-back').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const step = this.getAttribute('data-back');
+      if (step) goTo(parseInt(step));
+    });
+  });
+  
+  // Submit button
+  const submitBtn = document.querySelector('[data-submit]');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', submitForm);
+  }
+  
+  // Proof type selector
+  const proofTypeSelect = document.getElementById('proofType');
+  if (proofTypeSelect) {
+    proofTypeSelect.addEventListener('change', toggleProofFields);
+  }
+  
+  // Testimonial count
+  const numTestimonials = document.getElementById('numTestimonials');
+  if (numTestimonials) {
+    numTestimonials.addEventListener('change', buildTestimonialFields);
+  }
+  
+  // BA count
+  const numBAs = document.getElementById('numBAs');
+  if (numBAs) {
+    numBAs.addEventListener('change', buildBAFields);
+  }
+  
+  // Color picker sync
+  const colorPicker = document.getElementById('brandColorPicker');
+  const colorHex = document.getElementById('brandColorHex');
+  if (colorPicker && colorHex) {
+    colorPicker.addEventListener('input', function() {
+      colorHex.value = this.value;
+    });
+    colorHex.addEventListener('input', function() {
+      colorPicker.value = this.value;
+    });
+  }
+}
+
+// Make goTo globally accessible
+window.goTo = goTo;
+
+// ---- REVIEW ----
+function buildReview() {
+  const proofType = val('proofType');
+  const numT = parseInt(document.getElementById('numTestimonials')?.value || 3);
+  const numBA = parseInt(document.getElementById('numBAs')?.value || 3);
+
+  let testimonialRows = '';
+  if (proofType !== 'photos') {
+    for (let i = 1; i <= numT; i++) {
+      testimonialRows += `<div class="review-row"><span class="review-key">Testimonial ${i}</span><span class="review-val">${val('tname'+i)} — "${val('tquote'+i)}" (${val('tresult'+i)})</span></div>`;
+    }
+  }
+  let baRows = '';
+  if (proofType !== 'text') {
+    for (let i = 1; i <= numBA; i++) {
+      baRows += `<div class="review-row"><span class="review-key">B&A ${i}</span><span class="review-val">${val('baname'+i)} · ${val('baresult'+i)}</span></div>`;
+    }
+  }
+
+  const html = `
+    <div class="review-block">
+      <div class="review-block-title">Business Info</div>
+      <div class="review-row"><span class="review-key">Brand Name</span><span class="review-val">${val('businessName')}</span></div>
+      <div class="review-row"><span class="review-key">Tagline</span><span class="review-val">${val('tagline')}</span></div>
+      <div class="review-row"><span class="review-key">Background Theme</span><span class="review-val">${val('bgTheme')}</span></div>
+      <div class="review-row"><span class="review-key">Brand Color</span><span class="review-val">${val('brandColorHex')}</span></div>
+    </div>
+    <div class="review-block">
+      <div class="review-block-title">The Offer</div>
+      <div class="review-row"><span class="review-key">Offer Name</span><span class="review-val">${val('offerName')}</span></div>
+      <div class="review-row"><span class="review-key">Program Length</span><span class="review-val">${val('programLength')}</span></div>
+      <div class="review-row"><span class="review-key">Target Audience</span><span class="review-val">${val('targetAudience')}</span></div>
+      <div class="review-row"><span class="review-key">Main Result</span><span class="review-val">${val('mainResult')}</span></div>
+    </div>
+    <div class="review-block">
+      <div class="review-block-title">Hero</div>
+      <div class="review-row"><span class="review-key">Headline</span><span class="review-val">${val('headline1')} / ${val('headline2')} / ${val('headline3')}</span></div>
+      <div class="review-row"><span class="review-key">Body Copy</span><span class="review-val">${val('heroSubtext')}</span></div>
+      <div class="review-row"><span class="review-key">CTA</span><span class="review-val">${val('ctaText')} → ${val('ctaUrl')}</span></div>
+      <div class="review-row"><span class="review-key">Stats</span><span class="review-val">${val('stat1num')} ${val('stat1lbl')} · ${val('stat2num')} ${val('stat2lbl')} · ${val('stat3num')} ${val('stat3lbl')}</span></div>
+    </div>
+    <div class="review-block">
+      <div class="review-block-title">Video</div>
+      <div class="review-row"><span class="review-key">Video URL</span><span class="review-val">${val('videoUrl')}</span></div>
+      <div class="review-row"><span class="review-key">Banner</span><span class="review-val">${val('videoBanner')}</span></div>
+    </div>
+    <div class="review-block">
+      <div class="review-block-title">Benefits</div>
+      <div class="review-row"><span class="review-key">Benefit 1</span><span class="review-val">${val('b1title')} — ${val('b1desc')}</span></div>
+      <div class="review-row"><span class="review-key">Benefit 2</span><span class="review-val">${val('b2title')} — ${val('b2desc')}</span></div>
+      <div class="review-row"><span class="review-key">Benefit 3</span><span class="review-val">${val('b3title')} — ${val('b3desc')}</span></div>
+    </div>
+    <div class="review-block">
+      <div class="review-block-title">What's Included</div>
+      <div class="review-row"><span class="review-key">Item 1</span><span class="review-val">${val('i1title')} [${val('i1tag')}]</span></div>
+      <div class="review-row"><span class="review-key">Item 2</span><span class="review-val">${val('i2title')} [${val('i2tag')}]</span></div>
+      <div class="review-row"><span class="review-key">Item 3</span><span class="review-val">${val('i3title')} [${val('i3tag')}]</span></div>
+      <div class="review-row"><span class="review-key">Item 4</span><span class="review-val">${val('i4title')} [${val('i4tag')}]</span></div>
+      <div class="review-row"><span class="review-key">Item 5</span><span class="review-val">${val('i5title')} [${val('i5tag')}]</span></div>
+      <div class="review-row"><span class="review-key">Item 6</span><span class="review-val">${val('i6title')} [${val('i6tag')}]</span></div>
+    </div>
+    <div class="review-block">
+      <div class="review-block-title">Social Proof (${proofType})</div>
+      <div class="review-row"><span class="review-key">Headline</span><span class="review-val">${val('proofHeadline')}</span></div>
+      ${testimonialRows}
+      ${baRows}
+    </div>
+    <div class="review-block">
+      <div class="review-block-title">How It Works</div>
+      <div class="review-row"><span class="review-key">Urgency</span><span class="review-val">${val('urgencyText')}</span></div>
+      <div class="review-row"><span class="review-key">Step 1</span><span class="review-val">${val('s1title')} — ${val('s1desc')}</span></div>
+      <div class="review-row"><span class="review-key">Step 2</span><span class="review-val">${val('s2title')} — ${val('s2desc')}</span></div>
+      <div class="review-row"><span class="review-key">Step 3</span><span class="review-val">${val('s3title')} — ${val('s3desc')}</span></div>
+    </div>
+  `;
+  document.getElementById('reviewContent').innerHTML = html;
+}
+
+function submitForm() {
+  // Collect all form data
+  const formData = {
+    businessName: val('businessName'),
+    tagline: val('tagline'),
+    bgTheme: val('bgTheme'),
+    brandColor: val('brandColorHex'),
+    offerName: val('offerName'),
+    programLength: val('programLength'),
+    mainResult: val('mainResult'),
+    targetAudience: val('targetAudience'),
+    headline1: val('headline1'),
+    headline2: val('headline2'),
+    headline3: val('headline3'),
+    heroSubtext: val('heroSubtext'),
+    ctaText: val('ctaText'),
+    ctaUrl: val('ctaUrl'),
+    stat1num: val('stat1num'),
+    stat1lbl: val('stat1lbl'),
+    stat2num: val('stat2num'),
+    stat2lbl: val('stat2lbl'),
+    stat3num: val('stat3num'),
+    stat3lbl: val('stat3lbl'),
+    videoUrl: val('videoUrl'),
+    videoBanner: val('videoBanner'),
+    benefitsHeadline: val('benefitsHeadline'),
+    b1title: val('b1title'),
+    b1desc: val('b1desc'),
+    b2title: val('b2title'),
+    b2desc: val('b2desc'),
+    b3title: val('b3title'),
+    b3desc: val('b3desc'),
+    i1title: val('i1title'),
+    i1desc: val('i1desc'),
+    i1tag: val('i1tag'),
+    i2title: val('i2title'),
+    i2desc: val('i2desc'),
+    i2tag: val('i2tag'),
+    i3title: val('i3title'),
+    i3desc: val('i3desc'),
+    i3tag: val('i3tag'),
+    i4title: val('i4title'),
+    i4desc: val('i4desc'),
+    i4tag: val('i4tag'),
+    i5title: val('i5title'),
+    i5desc: val('i5desc'),
+    i5tag: val('i5tag'),
+    i6title: val('i6title'),
+    i6desc: val('i6desc'),
+    i6tag: val('i6tag'),
+    proofType: val('proofType'),
+    proofHeadline: val('proofHeadline'),
+    proofSubtext: val('proofSubtext'),
+    urgencyText: val('urgencyText'),
+    s1title: val('s1title'),
+    s1desc: val('s1desc'),
+    s2title: val('s2title'),
+    s2desc: val('s2desc'),
+    s3title: val('s3title'),
+    s3desc: val('s3desc')
+  };
+
+  // Add testimonial data if proof type includes text
+  const proofType = document.getElementById('proofType').value;
+  if (proofType !== 'photos') {
+    const numT = parseInt(document.getElementById('numTestimonials')?.value || 3);
+    for (let i = 1; i <= numT; i++) {
+      formData['tname' + i] = val('tname' + i);
+      formData['tquote' + i] = val('tquote' + i);
+      formData['tresult' + i] = val('tresult' + i);
+    }
+  }
+
+  // Add before/after data if proof type includes photos
+  if (proofType !== 'text') {
+    const numBA = parseInt(document.getElementById('numBAs')?.value || 3);
+    for (let i = 1; i <= numBA; i++) {
+      formData['baname' + i] = val('baname' + i);
+      formData['baresult' + i] = val('baresult' + i);
+      formData['babefore' + i] = val('babefore' + i);
+      formData['baafter' + i] = val('baafter' + i);
+    }
+  }
+
+  // ========================================
+  // PASTE YOUR MAKE.COM WEBHOOK URL HERE
+  // ========================================
+  const webhookUrl = 'PASTE_YOUR_MAKE_WEBHOOK_URL_HERE';
+
+  // Send to Make.com
+  fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData)
+  })
+  .then(response => {
+    if (response.ok) {
+      // Show success screen
+      document.getElementById('step9').classList.remove('active');
+      document.getElementById('successScreen').classList.add('active');
+      document.getElementById('progressBar').style.width = '100%';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      alert('Submission failed. Please try again or contact support.');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Submission failed. Please try again or contact support.');
+  });
+}
+</script>
+</body>
+</html>
